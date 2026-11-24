@@ -12,9 +12,11 @@ Each feature of `~/Code/sl2-analyzer`, and where Bloodborne stands. "Blocked" me
 | Browser app + parity gate (`app/*.js`, `tools/parity.mjs`) | not started | can start now on the fields above, then grow with the reader |
 | Derived stats (HP, stamina, damage from attributes) | partial | health and stamina are read from the save; the formulas need the game's param tables |
 | Inventory, storage, key items | done | named from the game's own message files; equipped gear not yet |
-| Gems and runes | counted | counted in the inventory; effects need the 40-byte gem records and the game's tables |
-| Bosses defeated | done, unconfirmed | 22 flags read; the character has killed none, so no positive case yet |
-| Lanterns lit, areas, NPC states | blocked | flags not located |
+| Gems and runes, gem slots | done | shape, effects named from the game, which weapon or armor each is fitted to |
+| Equipped gear | done | worn weapons (stored order) and armor |
+| Bosses defeated | done | 22 flags read; Father Gascoigne confirmed by a real kill, the other 21 not yet seen |
+| Lanterns lit | calibration workflow | `tools/flagdiff.py --add` records a lantern from two snapshots; none calibrated yet |
+| Areas, NPC states | blocked | flags not located |
 | Play time, deaths, NG cycle | done | play time also exposes restored saves in the history |
 | Map position | blocked | the editor reads coordinates by a pattern; not located here |
 | Item names from the game's own files (`tools/gamefiles.py`) | done | goods, weapons, armor; origin names and gem effects still to do |
