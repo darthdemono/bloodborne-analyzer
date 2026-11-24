@@ -1,0 +1,126 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Bloodborne save summary",
+ "oneOf": [
+  {
+   "type": "object",
+   "required": [
+    "file",
+    "size",
+    "empty",
+    "character",
+    "integrity"
+   ],
+   "properties": {
+    "file": {
+     "type": "string"
+    },
+    "size": {
+     "type": "integer"
+    },
+    "empty": {
+     "type": "boolean"
+    },
+    "character": {
+     "type": "object",
+     "required": [
+      "name",
+      "level",
+      "levelFromStats",
+      "stats",
+      "health",
+      "stamina",
+      "bloodEchoes",
+      "insight"
+     ],
+     "properties": {
+      "name": {
+       "type": "string"
+      },
+      "level": {
+       "type": "integer"
+      },
+      "levelFromStats": {
+       "type": "integer"
+      },
+      "stats": {
+       "type": "object",
+       "required": [
+        "vigor",
+        "endurance",
+        "strength",
+        "skill",
+        "bloodtinge",
+        "arcane"
+       ],
+       "properties": {
+        "vigor": {
+         "type": "integer"
+        },
+        "endurance": {
+         "type": "integer"
+        },
+        "strength": {
+         "type": "integer"
+        },
+        "skill": {
+         "type": "integer"
+        },
+        "bloodtinge": {
+         "type": "integer"
+        },
+        "arcane": {
+         "type": "integer"
+        }
+       }
+      },
+      "health": {
+       "type": "integer"
+      },
+      "stamina": {
+       "type": "integer"
+      },
+      "bloodEchoes": {
+       "type": "integer"
+      },
+      "insight": {
+       "type": "integer"
+      }
+     }
+    },
+    "integrity": {
+     "type": "object",
+     "required": [
+      "fileBytes",
+      "blockOffset",
+      "decodedBytes",
+      "note"
+     ],
+     "properties": {
+      "fileBytes": {
+       "type": "integer"
+      },
+      "blockOffset": {
+       "type": "integer"
+      },
+      "decodedBytes": {
+       "type": "integer"
+      },
+      "note": {
+       "type": "string"
+      }
+     }
+    }
+   }
+  },
+  {
+   "type": "object",
+   "required": [
+    "file",
+    "size",
+    "empty",
+    "integrity"
+   ]
+  }
+ ]
+}
