@@ -1,0 +1,18 @@
+:root { --bg: #f7f4ec; --fg: #211f1b; --muted: #6b655a; --line: #dad4c6; --accent: #3c5a73; --warn: #a0331f; --card: #fffdf8 }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #1a1917; --fg: #f0ece2; --muted: #9a9384; --line: #33312d; --accent: #8fb0cc; --warn: #e08a76; --card: #211f1b } }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, sans-serif }
+main { max-width: 60rem; margin: 0 auto; padding: 1.5rem 16px 4rem }
+h1 { margin: 0 0 .25rem; font-size: 1.7rem } h2, h3 { margin: 1.6rem 0 .5rem; font-size: 1.15rem; color: var(--accent) } h1 + p { margin-top: 0 }
+.lede, .muted { color: var(--muted) }
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 1.25rem; text-align: center; background: var(--card) }
+.drop.over, .drop:focus { border-color: var(--accent); outline: none }
+.row { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center } #actions { justify-content: flex-start }
+.btn { background: var(--accent); color: var(--bg); border: 0; border-radius: 8px; padding: .5rem .9rem; font: inherit; cursor: pointer }
+.btn:hover { filter: brightness(1.1) }
+.scroll { overflow-x: auto; margin: .5rem 0 } table { border-collapse: collapse; min-width: 22rem; width: 100% }
+th, td { text-align: left; padding: .3rem .6rem; border-bottom: 1px solid var(--line); white-space: nowrap } th { color: var(--muted); font-weight: 600 }
+td:nth-child(2) { white-space: normal }
+.warn { border-left: 4px solid var(--warn); padding: .5rem 1rem; background: var(--card) } code { background: var(--card); padding: .1rem .3rem; border-radius: 4px }
+ul { padding-left: 1.25rem } strong { font-weight: 650 }
+[hidden] { display: none !important }

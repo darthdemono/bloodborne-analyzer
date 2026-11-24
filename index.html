@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloodborne Analyzer</title>
+<meta name="description" content="Read a decrypted Bloodborne save in the browser: character, gear, gems, inventory, bosses and a playthrough history. Nothing is uploaded.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <h1>Bloodborne Analyzer</h1>
+  <p class="lede">Drop a decrypted character file (<code>userdata0000</code>) or a folder of snapshots. It is read in this page and never uploaded.</p>
+  <div id="drop" class="drop" tabindex="0">
+    <p>Drop files or a folder here</p>
+    <p class="row">
+      <label class="btn">Choose files<input id="pick" type="file" multiple hidden></label>
+      <label class="btn">Choose a folder<input id="pickdir" type="file" webkitdirectory hidden></label>
+    </p>
+  </div>
+  <p id="dbnote" class="muted"></p>
+  <p id="actions" hidden class="row"><button id="dlmd" class="btn">Download Markdown</button> <button id="dljson" class="btn">Download JSON</button></p>
+  <article id="out"></article>
+</main>
+<script type="module" src="app/main.js"></script>
+</body>
+</html>
