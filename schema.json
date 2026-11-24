@@ -11,8 +11,11 @@
     "header",
     "character",
     "inventory",
+    "gems",
+    "equipped",
     "storage",
     "keyItems",
+    "lanterns",
     "bosses",
     "integrity"
    ],
@@ -191,6 +194,24 @@
       }
      }
     },
+    "gems": {
+     "type": "string"
+    },
+    "equipped": {
+     "type": "object",
+     "required": [
+      "weapons",
+      "armor"
+     ],
+     "properties": {
+      "weapons": {
+       "type": "string"
+      },
+      "armor": {
+       "type": "string"
+      }
+     }
+    },
     "storage": {
      "type": "object",
      "required": [
@@ -241,6 +262,21 @@
        "type": "string"
       },
       "other": {
+       "type": "string"
+      }
+     }
+    },
+    "lanterns": {
+     "type": "object",
+     "required": [
+      "calibrated",
+      "lit"
+     ],
+     "properties": {
+      "calibrated": {
+       "type": "integer"
+      },
+      "lit": {
        "type": "string"
       }
      }

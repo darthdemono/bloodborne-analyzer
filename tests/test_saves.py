@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from bloodborne import BloodborneError, summarize
+from bloodborne.bb import _label
 from bloodborne.combine import history, stamp
 from bloodborne.container import MAGIC, SIZE
 
@@ -23,7 +24,7 @@ def slot(kind, id_, amount=1, handle=0x40):
 
 
 def make_save(name="Joy", vig=16, end=13, st=15, skl=9, blt=6, arc=7, echoes=181, insight=1, play_ms=14181860, deaths=12,
-              inventory=(), storage=(), keys=(), defeated=()) -> bytes:
+              inventory=(), storage=(), keys=(), defeated=(), gems=(), blocks=(), worn_weapons=(), worn_armor=()) -> bytes:
     """A synthetic character file laid out by the same anchors the reader uses: FACE, the inventory 34028 bytes before it,
     the username 469 before that, the aob marker 68545 after the username."""
     d = bytearray(SIZE)
@@ -48,6 +49,19 @@ def make_save(name="Joy", vig=16, end=13, st=15, skl=9, blt=6, arc=7, echoes=181
             struct.pack_into("<I", d, region + k * 16 + 8, 0xFFFFFFFF)   # every slot starts empty
         for k, rec in enumerate(items):
             d[region + k * 16:region + k * 16 + 16] = rec
+    pos = 84
+    for g in gems:                     # (handle, kind 1 gem / 2 rune, shape, effect ids)
+        eff = list(g[3]) + [0xFFFFFFFF] * (6 - len(g[3]))
+        struct.pack_into("<IIII6I", d, pos, g[0], 0x80010000 | (g[0] & 0xFFFF), g[1], g[2], *eff)
+        pos += 40
+    for key, ident, slots in blocks:   # slots: five (shape, gem handle)
+        struct.pack_into("<IIIII", d, pos, key, ident, 0, 0, 1)
+        for i, (shape, gem) in enumerate(list(slots) + [(0x80000000, 0)] * (5 - len(slots))):
+            struct.pack_into("<II", d, pos + 20 + 8 * i, shape, gem)
+        pos += 60
+    for off, handles in ((389, worn_weapons), (421, worn_armor)):
+        for i, h in enumerate(handles):
+            struct.pack_into("<I", d, USER + off + 4 * i, h)
     from bloodborne.bosses import BOSSES
     for n, flags in BOSSES:
         if n in defeated:
@@ -84,6 +98,63 @@ class Synthetic(unittest.TestCase):
 
     def test_stamp_reads_the_snapshot_folder_name(self):
         self.assertEqual(stamp(Path("BB_2026-11-24_12-45-04/SPRJ0005/userdata0000")).isoformat(), "2026-11-24T12:45:04")
+
+
+class Gear(unittest.TestCase):
+    def build(self):
+        axe, pistol, cap = slot("weapon", 5000100, 1, 0x51), slot("weapon", 14000000, 1, 0x52), slot("armor", 60000, 1, 0x55)
+        key = lambda r: struct.unpack_from("<I", r, 4)[0]
+        return make_save(inventory=[axe, pistol, cap],
+                         gems=[(0xC0800041, 1, 1, [126301]), (0xC0800042, 2, 1, [])],
+                         blocks=[(key(axe), 5000100, [(1, 0xC0800041), (0x80000000, 0)]), (key(pistol), 14000000, [(0x80000000, 0)])],
+                         worn_weapons=[key(pistol), key(axe)], worn_armor=[key(cap)])
+
+    def test_gems_and_runes(self):
+        g = summarize(self.build(), "x")["gems"]
+        self.assertEqual([x["type"] for x in g], ["gem", "rune"])
+        self.assertEqual((g[0]["shape"], g[0]["effects"][0]["id"]), ("Radial", 126301))
+
+    def test_gem_slots_and_where_a_gem_is_fitted(self):
+        s = summarize(self.build(), "x")
+        axe = s["inventory"]["weapons"][0]
+        self.assertEqual([x["shape"] for x in axe["gemSlots"]][:2], ["Radial", "Closed"])
+        self.assertEqual(axe["gemSlots"][0]["gem"], 0xC0800041)
+        self.assertEqual(s["gems"][0]["fittedTo"], _label(axe))      # the gem knows which weapon it sits in
+        self.assertIsNone(s["gems"][1]["fittedTo"])                  # the rune is loose
+
+    def test_worn_items_are_matched_to_the_inventory_by_handle(self):
+        s = summarize(self.build(), "x")
+        weapons, armor = {w["id"]: w for w in s["inventory"]["weapons"]}, s["inventory"]["armor"]
+        eq = s["equipped"]
+        self.assertEqual(eq["weapons"][:2], [_label(weapons[14000000]), _label(weapons[5000000])])   # pistol first, axe second
+        self.assertEqual(eq["weapons"][2:], [None, None])                                            # unmatched handles stay empty
+        self.assertEqual(eq["armor"][0], _label(armor[0]))
+        self.assertEqual(eq["armor"][1:], [None, None, None])
+
+
+class Lanterns(unittest.TestCase):
+    def test_a_calibrated_bit_reads_lit_and_an_uncalibrated_lantern_is_not_reported(self):
+        from bloodborne import lanterns, layout
+        d = bytearray(make_save())
+        lay = layout.find(bytes(d))
+        d[lay.aob + 5000] |= 0x20
+        table = [{"name": "Central Yharnam", "offset": 5000, "mask": 0x20}, {"name": "Cathedral Ward", "offset": 5001, "mask": 0x04}]
+        r = lanterns.read(bytes(d), lay, table)
+        self.assertEqual((r["calibrated"], r["lit"]), (2, ["Central Yharnam"]))
+
+    def test_flagdiff_add_refuses_anything_but_one_clean_bit(self):
+        import subprocess, sys, tempfile
+        with tempfile.TemporaryDirectory() as t:
+            a, b = Path(t, "a"), Path(t, "b")
+            from bloodborne import layout
+            d = bytearray(make_save())
+            lay = layout.find(bytes(d))
+            a.write_bytes(bytes(d))
+            d[lay.aob + 5000] |= 0x60            # two bits at once: not one lantern
+            b.write_bytes(bytes(d))
+            r = subprocess.run([sys.executable, "tools/flagdiff.py", str(a), str(b), "--add", "X"], capture_output=True, text=True, cwd=Path(__file__).resolve().parent.parent)
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn("not one clean bit", r.stderr + r.stdout)
 
 
 class Reader(unittest.TestCase):
