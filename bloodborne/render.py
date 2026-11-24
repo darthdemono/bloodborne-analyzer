@@ -67,8 +67,8 @@ def render(s: dict) -> str:
     else:
         out += ["None."]
     ln = s["lanterns"]
-    out += ["", f"### Lanterns lit ({len(ln['lit'])} of {ln['calibrated']} calibrated)", ""]
-    out += [f"- {n}" for n in ln["lit"]] or ["Calibrated lanterns: none lit." if ln["calibrated"] else "No lanterns calibrated yet: see tools/flagdiff.py --add."]
+    out += ["", f"### Lanterns lit ({len(ln['lit'])} of {ln['known']} known)", ""]
+    out += [f"- {n}" for n in ln["lit"]] or ["None lit." if ln["known"] else "The lamp table is not installed here (db_bb/lamps.json)."]
     b = s["bosses"]
     out += ["", f"### Bosses defeated ({len(b['defeated'])} of {b['tracked']} tracked)", ""]
     out += [f"- {n}" for n in b["defeated"]] or ["None yet."]

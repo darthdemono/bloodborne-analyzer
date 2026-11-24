@@ -53,9 +53,9 @@ export function render(s) {
     for (const g of s.gems) out.push(`| ${g.type} | ${g.shape || 'category ' + g.category} | ${g.effects.map((e) => e.text || String(e.id)).join('; ')} | ${g.fittedTo || 'not fitted'} |`)
   } else out.push('None.')
   const ln = s.lanterns
-  out.push('', `### Lanterns lit (${ln.lit.length} of ${ln.calibrated} calibrated)`, '')
+  out.push('', `### Lanterns lit (${ln.lit.length} of ${ln.known} known)`, '')
   if (ln.lit.length) out.push(...ln.lit.map((n) => `- ${n}`))
-  else out.push(ln.calibrated ? 'Calibrated lanterns: none lit.' : 'No lanterns calibrated yet: see tools/flagdiff.py --add.')
+  else out.push(ln.known ? 'None lit.' : 'The lamp table is not installed here (db_bb/lamps.json).')
   const b = s.bosses
   out.push('', `### Bosses defeated (${b.defeated.length} of ${b.tracked} tracked)`, '')
   if (b.defeated.length) out.push(...b.defeated.map((n) => `- ${n}`))
