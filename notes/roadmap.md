@@ -9,7 +9,7 @@ Each feature of `~/Code/sl2-analyzer`, and where Bloodborne stands. "Blocked" me
 | Combined history of a folder | done | folds identical copies, reports a stat that drops |
 | `--validate` ("does this save add up") | done | level rule, stat range, name, health |
 | Tests on real saves | done | level = stat sum - 50 on every snapshot |
-| Browser app + parity gate (`app/*.js`, `tools/parity.mjs`) | not started | can start now on the fields above, then grow with the reader |
+| Browser app + parity gate (`app/*.js`, `tools/parity.mjs`) | done | page, JS port of the reader, renderer and history; parity on 130 real saves; checked in headless Chromium at phone width |
 | Derived stats (HP, stamina, damage from attributes) | partial | health and stamina are read from the save; the formulas need the game's param tables |
 | Inventory, storage, key items | done | named from the game's own message files; equipped gear not yet |
 | Gems and runes, gem slots | done | shape, effects named from the game, which weapon or armor each is fitted to |
@@ -27,4 +27,4 @@ Each feature of `~/Code/sl2-analyzer`, and where Bloodborne stands. "Blocked" me
 
 ## What is left
 
-The stream is read by anchors, not parsed end to end, and that works for everything above. Still open, in order of value: equipped gear and gems (the 60-byte equipment blocks and 40-byte gem records), lanterns and other event flags (find them by diffing snapshots taken around one event, as the boss flags will be confirmed), map position, appearance and origin names, then the browser app and its parity gate.
+The stream is read by anchors, not parsed end to end, and that works for everything above. Still open, in order of value: equipped gear and gems (the 60-byte equipment blocks and 40-byte gem records), lanterns and other event flags (find them by diffing snapshots taken around one event, as the boss flags will be confirmed), map position, appearance and origin names, then the service worker / install manifest the sibling apps have, and the timeline chart.
