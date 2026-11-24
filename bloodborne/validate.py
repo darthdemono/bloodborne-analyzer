@@ -17,6 +17,10 @@ def validate(s: dict) -> list[str]:
             out.append(f"{k} is {v}, outside 1 to {STAT_MAX}")
     if not c["name"] or not c["name"].isprintable():
         out.append("the character name is empty or has unprintable characters")
-    if c["health"] <= 0 or c["stamina"] <= 0:
+    if c["health"]["base"] <= 0 or c["stamina"]["base"] <= 0:
         out.append("health or stamina is zero")
+    if s["header"]["playtimeMs"] <= 0:
+        out.append("play time is zero")
+    if c["health"]["current"] > c["health"]["withBuffs"]:
+        out.append("current health is above the buffed maximum")
     return out
