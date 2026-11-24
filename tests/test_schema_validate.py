@@ -40,8 +40,8 @@ class Validate(unittest.TestCase):
     def test_level_that_does_not_add_up_is_reported(self):
         d = bytearray(make_save())
         import struct
-        from bloodborne.container import find_block
-        struct.pack_into("<I", d, find_block(bytes(d)) + 128, 99)
+        from bloodborne import layout
+        struct.pack_into("<I", d, layout.find(bytes(d)).username - 23, 99)
         self.assertTrue(any("add up" in f for f in validate(summarize(bytes(d), "x"))))
 
     def test_stat_out_of_range_is_reported(self):

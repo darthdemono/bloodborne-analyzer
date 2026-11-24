@@ -8,7 +8,12 @@
     "file",
     "size",
     "empty",
+    "header",
     "character",
+    "inventory",
+    "storage",
+    "keyItems",
+    "bosses",
     "integrity"
    ],
    "properties": {
@@ -21,6 +26,25 @@
     "empty": {
      "type": "boolean"
     },
+    "header": {
+     "type": "object",
+     "required": [
+      "loadedMap",
+      "playtimeMs",
+      "playtime"
+     ],
+     "properties": {
+      "loadedMap": {
+       "type": "string"
+      },
+      "playtimeMs": {
+       "type": "integer"
+      },
+      "playtime": {
+       "type": "string"
+      }
+     }
+    },
     "character": {
      "type": "object",
      "required": [
@@ -31,7 +55,12 @@
       "health",
       "stamina",
       "bloodEchoes",
-      "insight"
+      "insight",
+      "gender",
+      "voice",
+      "origin",
+      "newGameCycle",
+      "deaths"
      ],
      "properties": {
       "name": {
@@ -75,16 +104,159 @@
        }
       },
       "health": {
-       "type": "integer"
+       "type": "object",
+       "required": [
+        "current",
+        "withBuffs",
+        "base"
+       ],
+       "properties": {
+        "current": {
+         "type": "integer"
+        },
+        "withBuffs": {
+         "type": "integer"
+        },
+        "base": {
+         "type": "integer"
+        }
+       }
       },
       "stamina": {
-       "type": "integer"
+       "type": "object",
+       "required": [
+        "current",
+        "withBuffs",
+        "base"
+       ],
+       "properties": {
+        "current": {
+         "type": "integer"
+        },
+        "withBuffs": {
+         "type": "integer"
+        },
+        "base": {
+         "type": "integer"
+        }
+       }
       },
       "bloodEchoes": {
        "type": "integer"
       },
       "insight": {
        "type": "integer"
+      },
+      "gender": {
+       "type": "integer"
+      },
+      "voice": {
+       "type": "integer"
+      },
+      "origin": {
+       "type": "integer"
+      },
+      "newGameCycle": {
+       "type": "integer"
+      },
+      "deaths": {
+       "type": "integer"
+      }
+     }
+    },
+    "inventory": {
+     "type": "object",
+     "required": [
+      "goods",
+      "armor",
+      "weapons",
+      "gems",
+      "other"
+     ],
+     "properties": {
+      "goods": {
+       "type": "string"
+      },
+      "armor": {
+       "type": "string"
+      },
+      "weapons": {
+       "type": "string"
+      },
+      "gems": {
+       "type": "string"
+      },
+      "other": {
+       "type": "string"
+      }
+     }
+    },
+    "storage": {
+     "type": "object",
+     "required": [
+      "goods",
+      "armor",
+      "weapons",
+      "gems",
+      "other"
+     ],
+     "properties": {
+      "goods": {
+       "type": "string"
+      },
+      "armor": {
+       "type": "string"
+      },
+      "weapons": {
+       "type": "string"
+      },
+      "gems": {
+       "type": "string"
+      },
+      "other": {
+       "type": "string"
+      }
+     }
+    },
+    "keyItems": {
+     "type": "object",
+     "required": [
+      "goods",
+      "armor",
+      "weapons",
+      "gems",
+      "other"
+     ],
+     "properties": {
+      "goods": {
+       "type": "string"
+      },
+      "armor": {
+       "type": "string"
+      },
+      "weapons": {
+       "type": "string"
+      },
+      "gems": {
+       "type": "string"
+      },
+      "other": {
+       "type": "string"
+      }
+     }
+    },
+    "bosses": {
+     "type": "object",
+     "required": [
+      "tracked",
+      "defeated"
+     ],
+     "properties": {
+      "tracked": {
+       "type": "integer"
+      },
+      "defeated": {
+       "type": "string"
       }
      }
     },
@@ -92,7 +264,11 @@
      "type": "object",
      "required": [
       "fileBytes",
-      "blockOffset",
+      "username",
+      "inventory",
+      "storage",
+      "keyItems",
+      "flags",
       "decodedBytes",
       "note"
      ],
@@ -100,7 +276,19 @@
       "fileBytes": {
        "type": "integer"
       },
-      "blockOffset": {
+      "username": {
+       "type": "integer"
+      },
+      "inventory": {
+       "type": "integer"
+      },
+      "storage": {
+       "type": "integer"
+      },
+      "keyItems": {
+       "type": "integer"
+      },
+      "flags": {
        "type": "integer"
       },
       "decodedBytes": {
