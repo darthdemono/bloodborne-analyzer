@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+"""Regenerate bloodborne/bosses.py from a copy of Noxde/Bloodborne-save-editor's src-tauri/resources/bosses.json.
+usage: python3 tools/gen_bosses.py path/to/bosses.json   (the "mp" flags are dropped, see the module docstring)"""
+import json
+import sys
+from pathlib import Path
+
+src = json.load(open(sys.argv[1]))
+rows = [(b["name"], [(x["rel_offset"], x["dead_value"]) for x in b["flags"] if x.get("_comment") != "mp"]) for b in src]
+target = Path(__file__).resolve().parent.parent / "bloodborne/bosses.py"
+head = target.read_text().split("BOSSES = [")[0]
+target.write_text(head + "BOSSES = [\n" + "".join(f"    ({n!r}, {fl!r}),\n" for n, fl in rows) + "]\n")
