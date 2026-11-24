@@ -132,29 +132,50 @@ class Gear(unittest.TestCase):
         self.assertEqual(eq["armor"][1:], [None, None, None])
 
 
-class Lanterns(unittest.TestCase):
-    def test_a_calibrated_bit_reads_lit_and_an_uncalibrated_lantern_is_not_reported(self):
-        from bloodborne import lanterns, layout
+class Flags(unittest.TestCase):
+    def test_the_store_formula_reproduces_known_boss_offsets(self):
+        """Verified on the real saves: these three ids land exactly on the offsets the boss table was read from."""
+        from bloodborne import flags
+        self.assertEqual(flags.locate(12411700), (21714, 0x08))    # Cleric Beast
+        self.assertEqual(flags.locate(12411800), (21727, 0x80))    # Father Gascoigne
+        self.assertEqual(flags.locate(12401800), (21602, 0x80))    # Vicar Amelia
+        self.assertEqual(flags.locate(2400), (1677, 0x80))         # a global flag, seen turning on in a real diff
+
+    def test_chalice_and_unknown_ids_have_no_block(self):
+        from bloodborne import flags
+        self.assertIsNone(flags.locate(14100000))                  # area 41: a chalice instance, not in the pool
+
+    def test_lamp_flags_read_lit_and_unlit(self):
+        from bloodborne import flags, lanterns, layout
         d = bytearray(make_save())
         lay = layout.find(bytes(d))
-        d[lay.aob + 5000] |= 0x20
-        table = [{"name": "Central Yharnam", "offset": 5000, "mask": 0x20}, {"name": "Cathedral Ward", "offset": 5001, "mask": 0x04}]
-        r = lanterns.read(bytes(d), lay, table)
-        self.assertEqual((r["calibrated"], r["lit"]), (2, ["Central Yharnam"]))
+        off, mask = flags.locate(72410203)
+        d[lay.aob + off] |= mask
+        lamps = [{"flag": 72410203, "name": "Tomb of Oedon"}, {"flag": 72410202, "name": "Great Bridge"}]
+        r = lanterns.read(bytes(d), lay, lamps)
+        self.assertEqual((r["known"], r["lit"]), (2, ["Tomb of Oedon"]))
 
-    def test_flagdiff_add_refuses_anything_but_one_clean_bit(self):
+    def test_the_lamp_table_is_generated_from_the_game_text(self):
+        from bloodborne import lanterns
+        if not lanterns.table():
+            self.skipTest("db_bb/lamps.json not generated here")
+        self.assertIn({"flag": 72410203, "name": "Tomb of Oedon"}, lanterns.table())
+
+    def test_flagdiff_decodes_a_changed_bit_to_its_flag_id(self):
         import subprocess, sys, tempfile
+        from bloodborne import flags, layout
         with tempfile.TemporaryDirectory() as t:
             a, b = Path(t, "a"), Path(t, "b")
-            from bloodborne import layout
             d = bytearray(make_save())
             lay = layout.find(bytes(d))
             a.write_bytes(bytes(d))
-            d[lay.aob + 5000] |= 0x60            # two bits at once: not one lantern
+            off, mask = flags.locate(72410203)
+            d[lay.aob + off] |= mask
             b.write_bytes(bytes(d))
-            r = subprocess.run([sys.executable, "tools/flagdiff.py", str(a), str(b), "--add", "X"], capture_output=True, text=True, cwd=Path(__file__).resolve().parent.parent)
-            self.assertNotEqual(r.returncode, 0)
-            self.assertIn("not one clean bit", r.stderr + r.stdout)
+            r = subprocess.run([sys.executable, "tools/flagdiff.py", str(a), str(b)], capture_output=True, text=True, cwd=Path(__file__).resolve().parent.parent)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertIn("72410203", r.stdout)
+            self.assertIn("1 flag bits changed", r.stdout)
 
 
 class Reader(unittest.TestCase):

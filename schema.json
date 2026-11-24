@@ -269,11 +269,11 @@
     "lanterns": {
      "type": "object",
      "required": [
-      "calibrated",
+      "known",
       "lit"
      ],
      "properties": {
-      "calibrated": {
+      "known": {
        "type": "integer"
       },
       "lit": {
