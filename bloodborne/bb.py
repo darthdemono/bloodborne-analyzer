@@ -1,37 +1,80 @@
 """summarize(): everything the writers show is computed here, as one JSON-able dict."""
+import json
+from functools import lru_cache
 from pathlib import Path
 
-from .container import BLOCK_LEN, check, find_block, read, u32
+from . import layout, records
+from .bosses import BOSSES
+from .container import check, read, u32
 
-# offsets inside the character block, validated against 6 real snapshots (level climbs 10 to 16 with vigor 12 to 16, name "Joy")
-STATS = {"vigor": 48, "endurance": 56, "strength": 72, "skill": 80, "bloodtinge": 88, "arcane": 96}
-BASE_LEVEL_SUM = 50      # level = sum of the six stats - 50: 66 - 50 = 16, 60 - 50 = 10, both seen in the real saves
+# distances from the username (layout.py); u32 unless noted
+STATS = {"vigor": -103, "endurance": -95, "strength": -79, "skill": -71, "bloodtinge": -63, "arcane": -55}
+BASE_LEVEL_SUM = 50      # level = sum of the six stats - 50, true on every real save
+HEADER = 12              # loaded map and play time, the only fixed absolute offsets
+
+
+@lru_cache(maxsize=1)
+def names() -> dict:
+    """Item, weapon and armor names read from the game by tools/gamefiles.py; empty when db_bb/ was not generated."""
+    p = Path(__file__).resolve().parent.parent / "db_bb" / "names.json"
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+
+
+def _named(slots: list[dict]) -> list[dict]:
+    table = names()
+    for s in slots:
+        s["name"] = table.get({"goods": "goods", "weapon": "weapons", "armor": "armor"}.get(s["kind"], ""), {}).get(str(s["id"]), "")
+    return slots
+
+
+def _name(data: bytes, user: int) -> str:
+    raw = data[user + 1:user + 33]
+    return raw.decode("utf-16le", errors="replace").split("\0")[0]
+
+
+def _grouped(slots: list[dict]) -> dict:
+    slots = _named(slots)
+    out = {"goods": [], "armor": [], "weapons": [], "gems": [], "other": []}
+    for s in slots:
+        out[{"goods": "goods", "armor": "armor", "weapon": "weapons", "gem": "gems"}.get(s["kind"], "other")].append(s)
+    return out
 
 
 def summarize(path_or_bytes, name: str = "") -> dict:
     data = check(bytes(path_or_bytes)) if isinstance(path_or_bytes, (bytes, bytearray)) else read(path_or_bytes)
-    off = find_block(data)
-    out = {"file": name or (Path(path_or_bytes).name if not isinstance(path_or_bytes, (bytes, bytearray)) else ""), "size": len(data), "empty": off is None}
-    if off is None:
+    lay = layout.find(data)
+    out = {"file": name or (Path(path_or_bytes).name if not isinstance(path_or_bytes, (bytes, bytearray)) else ""), "size": len(data), "empty": lay is None}
+    if lay is None:
         out["integrity"] = {"fileBytes": len(data), "decodedBytes": 0, "note": "no character in this slot"}
         return out
-    b = data[off:off + BLOCK_LEN]
-    stats = {k: b[o] for k, o in STATS.items()}
-    level = u32(b, 128)
+    u = lay.username
+    g = lambda off: u32(data, u + off)
+    stats = {k: g(o) for k, o in STATS.items()}
+    play_ms = u32(data, 8)
+    out["header"] = {"loadedMap": f"{u32(data, 4):#010x}", "playtimeMs": play_ms, "playtime": f"{play_ms // 3600000}:{play_ms // 60000 % 60:02d}:{play_ms // 1000 % 60:02d}"}
     out["character"] = {
-        "name": b[-33:].replace(b"\0", b"").decode("latin-1"),
-        "level": level,
+        "name": _name(data, u),
+        "level": g(-23),
         "levelFromStats": sum(stats.values()) - BASE_LEVEL_SUM,
         "stats": stats,
-        "health": u32(b, 8),
-        "stamina": u32(b, 32),
-        "bloodEchoes": u32(b, 132),
-        "insight": u32(b, 116),
+        "health": {"current": g(-147), "withBuffs": g(-143), "base": g(-139)},
+        "stamina": {"current": g(-119), "withBuffs": g(-115), "base": g(-111)},
+        "bloodEchoes": g(-19),
+        "insight": g(-35),
+        "gender": data[u + 35], "voice": data[u + 36], "origin": data[u + 39],
+        "newGameCycle": data[u + 68831],
+        "deaths": u32(data, lay.aob + 360),
     }
+    out["inventory"] = _grouped(records.read(data, lay.inventory, layout.INV_SLOTS))
+    out["storage"] = _grouped(records.read(data, lay.storage, layout.STORAGE_SLOTS))
+    out["keyItems"] = _grouped(records.read(data, lay.key, layout.KEY_SLOTS))
+    flags = {n: all((data[lay.aob + off] & mask) == mask for off, mask in fl) for n, fl in BOSSES}
+    out["bosses"] = {"tracked": len(BOSSES), "defeated": [n for n, dead in flags.items() if dead]}
+    decoded = HEADER + 185 + (layout.INV_SLOTS + layout.STORAGE_SLOTS + layout.KEY_SLOTS) * layout.SLOT + len(BOSSES) * 1
     out["integrity"] = {
         "fileBytes": len(data),
-        "blockOffset": off,
-        "decodedBytes": BLOCK_LEN,
-        "note": "only the character block is decoded; inventory, gems, play time, bosses and map state are not read yet (notes/format.md)",
+        "username": u, "inventory": lay.inventory, "storage": lay.storage, "keyItems": lay.key, "flags": lay.aob,
+        "decodedBytes": decoded,
+        "note": "gem effects, equipped gear, map position, appearance and most event flags are not read yet (notes/format.md)",
     }
     return out
