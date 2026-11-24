@@ -1,6 +1,6 @@
 # bloodborne-analyzer
 
-Reads a decrypted Bloodborne character file and writes the character's level, stats and Blood Echoes as Markdown or JSON. Point it at a folder of snapshots and it writes the playthrough as a history instead.
+Reads a decrypted Bloodborne character file and writes the character, its inventory, storage, key items and boss flags as Markdown or JSON. Point it at a folder of snapshots and it writes the playthrough as a history instead.
 
 ```bash
 python3 bb_to_md.py                               # the live bbport save
@@ -14,7 +14,11 @@ Python 3.10 or newer, standard library only.
 
 ## What it reads today
 
-Name, level, the six stats, health, stamina, Blood Echoes and insight. A history across snapshots folds byte-identical copies together and reports any stat that drops. `--validate` checks that the level matches the stats and the stats are in range. That is a small part of the file: 185 of 1,310,720 bytes. What is known and what is not is in `notes/format.md`, and what is left against sl2-analyzer is in `notes/roadmap.md`.
+Name, level, the six stats, health, stamina, Blood Echoes, insight, play time, deaths, New Game cycle, the full inventory, storage and key-item lists with the game's own item names, and 22 boss flags. A history across snapshots folds byte-identical copies together, shows play time and deaths, lists the gear and items that appeared between snapshots, and reports a stat that drops or play time that goes back (an older save was restored). `--validate` checks that the level matches the stats and the values are in range.
+
+Names are read from the game: `python3 tools/gamefiles.py names <game>/dvdroot_ps4/msg/engus db_bb` writes `db_bb/names.json` from your own install. Without it the report shows ids.
+
+Not read yet: gem effects, equipped gear, map position, appearance and most event flags. What is known and what is not is in `notes/format.md`, and what is left against sl2-analyzer is in `notes/roadmap.md`.
 
 ## Saves
 

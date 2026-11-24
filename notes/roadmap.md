@@ -11,16 +11,18 @@ Each feature of `~/Code/sl2-analyzer`, and where Bloodborne stands. "Blocked" me
 | Tests on real saves | done | level = stat sum - 50 on every snapshot |
 | Browser app + parity gate (`app/*.js`, `tools/parity.mjs`) | not started | can start now on the fields above, then grow with the reader |
 | Derived stats (HP, stamina, damage from attributes) | partial | health and stamina are read from the save; the formulas need the game's param tables |
-| Inventory, storage, equipped gear | blocked | save is a serialized object stream, records not located |
-| Gems and runes | blocked | the public editor finds them by pattern (80-byte records) |
-| Bosses defeated, lanterns lit, areas | blocked | event flags not located |
-| Play time, NG+ cycle, location | blocked | not located |
-| Item names from the game's own files (`tools/gamefiles.py`) | not started | names live in `dvdroot_ps4/msg` under the game folder; DCX/BND readers already exist in sl2-analyzer |
+| Inventory, storage, key items | done | named from the game's own message files; equipped gear not yet |
+| Gems and runes | counted | counted in the inventory; effects need the 40-byte gem records and the game's tables |
+| Bosses defeated | done, unconfirmed | 22 flags read; the character has killed none, so no positive case yet |
+| Lanterns lit, areas, NPC states | blocked | flags not located |
+| Play time, deaths, NG cycle | done | play time also exposes restored saves in the history |
+| Map position | blocked | the editor reads coordinates by a pattern; not located here |
+| Item names from the game's own files (`tools/gamefiles.py`) | done | goods, weapons, armor; origin names and gem effects still to do |
 | Progress inference with "a floor" wording | blocked | needs flags |
 | Timeline charts | not started | needs more than six numbers per snapshot to be worth drawing |
 | Owner account check | not applicable | a PS4 save is bound to an account id, but the decrypted bbport files carry none |
 | Save editing (steam id swap, slot clearing) | not applicable | BB-Recover and BB-Save in the pwsh profile cover safe restore; writing stats is out of scope |
 
-## The one blocker
+## What is left
 
-Everything marked blocked waits on one thing: a reader for the serialized stream (tag words such as `c08002b2`, variable-length records). A raw diff of two snapshots changes 245,000 of 327,680 words because a change early in the file shifts everything after it, so the structure has to be parsed, not diffed. Order of attack: parse the tag/length framing, locate the character block by structure instead of the table pattern, then find the inventory by diffing records between saves where one item was bought or used.
+The stream is read by anchors, not parsed end to end, and that works for everything above. Still open, in order of value: equipped gear and gems (the 60-byte equipment blocks and 40-byte gem records), lanterns and other event flags (find them by diffing snapshots taken around one event, as the boss flags will be confirmed), map position, appearance and origin names, then the browser app and its parity gate.
