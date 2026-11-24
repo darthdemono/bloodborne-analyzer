@@ -9,15 +9,30 @@ def _label(s: dict) -> str:
     return n
 
 
+def _slots(s: dict) -> str:
+    """Open gem slots of a weapon or armor piece, as 'Radial (empty), Circle (Physical ATK UP +1.1%)'."""
+    gem = {g["handle"]: g for g in _GEMS}
+    out = []
+    for sl in s.get("gemSlots", []):
+        if sl["shape"] == "Closed":
+            continue
+        g = gem.get(sl["gem"])
+        out.append(f"{sl['shape']} ({', '.join(e['text'] or str(e['id']) for e in g['effects']) if g else 'empty'})")
+    return ", ".join(out)
+
+
+_GEMS: list = []
+
+
 def _section(title: str, grp: dict) -> list[str]:
     total = sum(len(v) for k, v in grp.items() if k != "gems")
     gems = len(grp["gems"])
     out = [f"### {title} ({total} entries" + (f", {gems} gems and runes" if gems else "") + ")", ""]
     if not total:
         return out + ["Empty.", ""]
-    out += ["| Kind | Name | Amount |", "|---|---|---|"]
+    out += ["| Kind | Name | Amount | Gem slots |", "|---|---|---|---|"]
     for kind in ("weapons", "armor", "goods", "other"):
-        out += [f"| {kind[:-1] if kind.endswith('s') else kind} | {_label(s)} | {s['amount']} |" for s in grp[kind]]
+        out += [f"| {kind[:-1] if kind.endswith('s') else kind} | {_label(s)} | {s['amount']} | {_slots(s)} |" for s in grp[kind]]
     return out + [""]
 
 
@@ -42,6 +57,18 @@ def render(s: dict) -> str:
         "|---|---|",
     ]
     out += [f"| {k.title()} | {v} |" for k, v in c["stats"].items()]
+    _GEMS[:] = s["gems"]
+    eq = s["equipped"]
+    out += ["", "### Worn", "", "**Weapon slots (stored order):** " + ", ".join(x or "empty" for x in eq["weapons"]), "**Armor (head, chest, arms, legs):** " + ", ".join(x or "empty" for x in eq["armor"]), ""]
+    out += [f"### Blood gems and runes ({len(s['gems'])})", ""]
+    if s["gems"]:
+        out += ["| Type | Shape | Effects | Fitted to |", "|---|---|---|---|"]
+        out += [f"| {g['type']} | {g['shape'] or 'category ' + str(g['category'])} | {'; '.join(e['text'] or str(e['id']) for e in g['effects'])} | {g['fittedTo'] or 'not fitted'} |" for g in s["gems"]]
+    else:
+        out += ["None."]
+    ln = s["lanterns"]
+    out += ["", f"### Lanterns lit ({len(ln['lit'])} of {ln['calibrated']} calibrated)", ""]
+    out += [f"- {n}" for n in ln["lit"]] or ["Calibrated lanterns: none lit." if ln["calibrated"] else "No lanterns calibrated yet: see tools/flagdiff.py --add."]
     b = s["bosses"]
     out += ["", f"### Bosses defeated ({len(b['defeated'])} of {b['tracked']} tracked)", ""]
     out += [f"- {n}" for n in b["defeated"]] or ["None yet."]

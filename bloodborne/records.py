@@ -20,7 +20,7 @@ def decode(rec: bytes):
     if second == NONE or not (first or second):
         return None
     b7, b11 = rec[7], rec[11]
-    out = {"handle": rec[0], "amount": amount}
+    out = {"handle": rec[0], "first": first, "amount": amount}
     if b7 == 0xB0 and b11 == 0x40:
         return {**out, "kind": "goods", "id": second & 0xFFFFFF}
     if b11 == 0x10:

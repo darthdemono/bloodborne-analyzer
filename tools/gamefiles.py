@@ -76,8 +76,8 @@ def fmg(blob: bytes) -> dict[int, str]:
     return out
 
 
-def tables(msg_dir: Path) -> dict[str, dict[int, str]]:
-    p = msg_dir / "item.msgbnd.dcx"
+def tables(msg_dir: Path, bundle: str = "item") -> dict[str, dict[int, str]]:
+    p = msg_dir / f"{bundle}.msgbnd.dcx"
     return {Path(name.replace("\\", "/")).stem: fmg(blob) for _, name, blob in bnd(p.read_bytes())}
 
 
@@ -94,4 +94,6 @@ if __name__ == "__main__":
         junk = re.compile(r"^(\*|NOT NEEDED|%null%|en\d+|\s*)$")   # unused rows the game ships as placeholders
         res = {k: {str(i): s for i, s in t.get(v, {}).items() if not junk.match(s)} for k, v in keep.items()}
         (out / "names.json").write_text(json.dumps(res, ensure_ascii=False, indent=0, sort_keys=True))
-        print({k: len(v) for k, v in res.items()})
+        eff = {str(i): x for i, x in tables(msg, "menu").get("魔石効果", {}).items() if not junk.match(x)}   # the gem effect texts, in menu.msgbnd
+        (out / "gem_effects.json").write_text(json.dumps(eff, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+        print({k: len(v) for k, v in res.items()}, {"gemEffects": len(eff)})

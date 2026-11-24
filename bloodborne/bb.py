@@ -3,7 +3,7 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-from . import layout, records
+from . import gear, lanterns, layout, records
 from .bosses import BOSSES
 from .container import check, read, u32
 
@@ -18,6 +18,43 @@ def names() -> dict:
     """Item, weapon and armor names read from the game by tools/gamefiles.py; empty when db_bb/ was not generated."""
     p = Path(__file__).resolve().parent.parent / "db_bb" / "names.json"
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+
+
+@lru_cache(maxsize=1)
+def gem_effects() -> dict:
+    p = Path(__file__).resolve().parent.parent / "db_bb" / "gem_effects.json"
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+
+
+def _label(item: dict) -> str:
+    n = item.get("name") or f"unnamed {item['kind']} {item['id']}"
+    if item["kind"] == "weapon":
+        n += (f" +{item['level']}" if item["level"] else "") + (f" ({item['imprint']})" if item["imprint"] else "")
+    return n
+
+
+def _gear(data: bytes, lay, inv: dict) -> tuple[list, dict]:
+    """Gems and runes with what they are fitted to, the gem slots on each weapon and armor piece, and the worn items."""
+    gems, end = gear.gems(data, lay)
+    table = gem_effects()
+    by_handle = {}
+    for g in gems:
+        g["effects"] = [{"id": e, "text": table.get(str(e), "")} for e in g["effects"]]
+        g["fittedTo"] = None
+        by_handle[g["handle"]] = g
+    blocks = gear.blocks(data, lay, end)
+    items = {}
+    for grp in ("weapons", "armor"):
+        for it in inv[grp]:
+            items[it["first"]] = it
+            b = blocks.get(it["first"])
+            it["gemSlots"] = [{"shape": sl["shape"], "gem": sl["gem"]} for sl in b["slots"]] if b else []
+            for sl in it["gemSlots"]:
+                if sl["gem"] in by_handle:
+                    by_handle[sl["gem"]]["fittedTo"] = _label(it)
+    w = gear.worn(data, lay)
+    worn = {k: [_label(items[h]) if h in items else None for h in v] for k, v in w.items()}
+    return gems, worn
 
 
 def _named(slots: list[dict]) -> list[dict]:
@@ -66,9 +103,11 @@ def summarize(path_or_bytes, name: str = "") -> dict:
         "deaths": u32(data, lay.aob + 360),
     }
     out["inventory"] = _grouped(records.read(data, lay.inventory, layout.INV_SLOTS))
+    out["gems"], out["equipped"] = _gear(data, lay, out["inventory"])
     out["storage"] = _grouped(records.read(data, lay.storage, layout.STORAGE_SLOTS))
     out["keyItems"] = _grouped(records.read(data, lay.key, layout.KEY_SLOTS))
     flags = {n: all((data[lay.aob + off] & mask) == mask for off, mask in fl) for n, fl in BOSSES}
+    out["lanterns"] = lanterns.read(data, lay)
     out["bosses"] = {"tracked": len(BOSSES), "defeated": [n for n, dead in flags.items() if dead]}
     decoded = HEADER + 185 + (layout.INV_SLOTS + layout.STORAGE_SLOTS + layout.KEY_SLOTS) * layout.SLOT + len(BOSSES) * 1
     out["integrity"] = {
