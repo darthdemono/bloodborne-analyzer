@@ -16,3 +16,6 @@ CLAUDE*.md
 AGENTS*.md
 CODEX*.md
 GEMINI*.md
+.parity.json
+.parity.md
+.parity-history.md

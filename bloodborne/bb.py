@@ -114,6 +114,6 @@ def summarize(path_or_bytes, name: str = "") -> dict:
         "fileBytes": len(data),
         "username": u, "inventory": lay.inventory, "storage": lay.storage, "keyItems": lay.key, "flags": lay.aob,
         "decodedBytes": decoded,
-        "note": "gem effects, equipped gear, map position, appearance and most event flags are not read yet (notes/format.md)",
+        "note": "map position, appearance, lantern bits until calibrated and most event flags are not read yet (notes/format.md)",
     }
     return out
