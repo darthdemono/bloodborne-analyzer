@@ -13,7 +13,7 @@ import { history, renderHistory, isSlotFile } from '../app/combine.js'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const read = (f) => (existsSync(join(root, 'db_bb', f)) ? JSON.parse(readFileSync(join(root, 'db_bb', f), 'utf8')) : undefined)
-const db = { names: read('names.json'), gemEffects: read('gem_effects.json'), lanterns: read('lanterns.json') }
+const db = { names: read('names.json'), gemEffects: read('gem_effects.json'), lamps: read('lamps.json') }
 const py = (...args) => execFileSync('python3', ['bb_to_md.py', ...args], { cwd: root, encoding: 'utf8', maxBuffer: 1 << 28 })
 const walk = (p) => (statSync(p).isDirectory() ? readdirSync(p).flatMap((n) => walk(join(p, n))) : isSlotFile(p) ? [p] : [])
 const files = process.argv.slice(2).flatMap(walk)

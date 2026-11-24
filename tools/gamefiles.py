@@ -96,4 +96,9 @@ if __name__ == "__main__":
         (out / "names.json").write_text(json.dumps(res, ensure_ascii=False, indent=0, sort_keys=True))
         eff = {str(i): x for i, x in tables(msg, "menu").get("魔石効果", {}).items() if not junk.match(x)}   # the gem effect texts, in menu.msgbnd
         (out / "gem_effects.json").write_text(json.dumps(eff, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
-        print({k: len(v) for k, v in res.items()}, {"gemEffects": len(eff)})
+        ev = tables(msg, "menu").get("イベントテキスト", {})
+        # lamp names are event text ids 7000AABn; the lamp-lit flag is 7AAB02nn (area AA, block B, lamp n of that map)
+        lamps = [{"flag": 70_000_000 + (i - 70_000_000) // 10 * 10_000 + 200 + (i - 70_000_000) % 10, "name": x.strip()}
+                 for i, x in sorted(ev.items()) if 70_002_110 <= i <= 70_003_602 and not junk.match(x)]
+        (out / "lamps.json").write_text(json.dumps(lamps, ensure_ascii=False, indent=0) + "\n")
+        print({k: len(v) for k, v in res.items()}, {"gemEffects": len(eff), "lamps": len(lamps)})

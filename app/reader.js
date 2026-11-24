@@ -1,6 +1,7 @@
 // Line-for-line port of bloodborne/{container,layout,records,gear,lanterns,bb}.py. The Python reader is the reference:
 // tools/parity.mjs runs both on the same saves and compares the summary, key order included.
 import { BOSSES } from './bosses.js'
+import { isSet } from './flags.js'
 
 export const SIZE = 0x140000
 const MAGIC = [0x41, 0, 0, 0]
@@ -168,8 +169,8 @@ export function summarize(bytes, name = '', db = {}) {
   ;[out.gems, out.equipped] = gear(d, lay, out.inventory, db)
   out.storage = grouped(readSlots(d, lay.storage, STORAGE_SLOTS), db)
   out.keyItems = grouped(readSlots(d, lay.key, KEY_SLOTS), db)
-  const entries = db.lanterns || []
-  out.lanterns = { calibrated: entries.length, lit: entries.filter((e) => (d[lay.aob + e.offset] & e.mask) === e.mask).map((e) => e.name) }
+  const lamps = db.lamps || []
+  out.lanterns = { known: lamps.length, lit: lamps.filter((x) => isSet(d, lay, x.flag)).map((x) => x.name) }
   const flags = BOSSES.map(([n, fl]) => [n, fl.every(([off, mask]) => (d[lay.aob + off] & mask) === mask)])
   out.bosses = { tracked: BOSSES.length, defeated: flags.filter(([, dead]) => dead).map(([n]) => n) }
   out.integrity = {

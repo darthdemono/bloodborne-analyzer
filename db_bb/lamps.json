@@ -1,0 +1,214 @@
+[
+{
+"flag": 72110200,
+"name": "Abandoned Old Workshop"
+},
+{
+"flag": 72200200,
+"name": "Hemwick Charnel Lane"
+},
+{
+"flag": 72200201,
+"name": "Witch's Abode"
+},
+{
+"flag": 72300200,
+"name": "Old Yharnam"
+},
+{
+"flag": 72300201,
+"name": "Church of the Good Chalice"
+},
+{
+"flag": 72300202,
+"name": "Graveyard of the Darkbeast"
+},
+{
+"flag": 72400200,
+"name": "Cathedral Ward"
+},
+{
+"flag": 72400201,
+"name": "Grand Cathedral"
+},
+{
+"flag": 72410200,
+"name": "1st Floor Sickroom"
+},
+{
+"flag": 72410201,
+"name": "Central Yharnam"
+},
+{
+"flag": 72410202,
+"name": "Great Bridge"
+},
+{
+"flag": 72410203,
+"name": "Tomb of Oedon"
+},
+{
+"flag": 72420200,
+"name": "Upper Cathedral Ward"
+},
+{
+"flag": 72420201,
+"name": "Altar of Despair"
+},
+{
+"flag": 72420202,
+"name": "Lumenflower Gardens"
+},
+{
+"flag": 72500200,
+"name": "Forsaken Castle Cainhurst"
+},
+{
+"flag": 72500201,
+"name": "Vileblood Queen's Chamber"
+},
+{
+"flag": 72500202,
+"name": "Logarius' Seat"
+},
+{
+"flag": 72600200,
+"name": "Nightmare of Mensis"
+},
+{
+"flag": 72600201,
+"name": "Wet Nurse's Lunarium"
+},
+{
+"flag": 72600202,
+"name": "Mergo's Loft: Middle"
+},
+{
+"flag": 72600203,
+"name": "Mergo's Loft: Base"
+},
+{
+"flag": 72700200,
+"name": "Forbidden Woods"
+},
+{
+"flag": 72700201,
+"name": "Forbidden Grave"
+},
+{
+"flag": 72800200,
+"name": "Yahar'gul, Unseen Village"
+},
+{
+"flag": 72800201,
+"name": "Advent Plaza"
+},
+{
+"flag": 72800202,
+"name": "Hypogean Gaol"
+},
+{
+"flag": 72800203,
+"name": "Yahar'gul Chapel"
+},
+{
+"flag": 72900200,
+"name": "Chamber of the Seal"
+},
+{
+"flag": 72900201,
+"name": "Layer One"
+},
+{
+"flag": 72900202,
+"name": "Layer One: Heart"
+},
+{
+"flag": 72900203,
+"name": "Layer Two"
+},
+{
+"flag": 72900204,
+"name": "Layer Two: Heart"
+},
+{
+"flag": 72900205,
+"name": "Layer Three"
+},
+{
+"flag": 72900206,
+"name": "Layer Three: Heart"
+},
+{
+"flag": 72900207,
+"name": "Layer Four"
+},
+{
+"flag": 72900208,
+"name": "Layer Four: Heart"
+},
+{
+"flag": 73200200,
+"name": "Byrgenwerth"
+},
+{
+"flag": 73200201,
+"name": "Lecture Building"
+},
+{
+"flag": 73200202,
+"name": "Moonside Lake"
+},
+{
+"flag": 73200203,
+"name": "Lecture Building 2nd Floor"
+},
+{
+"flag": 73300200,
+"name": "Nightmare Frontier"
+},
+{
+"flag": 73300201,
+"name": "Amygdala's Chamber"
+},
+{
+"flag": 73400200,
+"name": "Hunter's Nightmare"
+},
+{
+"flag": 73400201,
+"name": "Nightmare Church"
+},
+{
+"flag": 73400202,
+"name": "Underground Corpse Pile"
+},
+{
+"flag": 73400203,
+"name": "Nightmare Grand Cathedral"
+},
+{
+"flag": 73500200,
+"name": "Research Hall"
+},
+{
+"flag": 73500201,
+"name": "Lumenwood Garden"
+},
+{
+"flag": 73500202,
+"name": "Astral Clocktower"
+},
+{
+"flag": 73600200,
+"name": "Fishing Hamlet"
+},
+{
+"flag": 73600201,
+"name": "Lighthouse Hut"
+},
+{
+"flag": 73600202,
+"name": "Coast"
+}
+]

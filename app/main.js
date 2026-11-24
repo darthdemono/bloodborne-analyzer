@@ -9,7 +9,7 @@ let db = {}, last = { md: '', json: '' }
 // the game tables are generated from the owner's install (tools/gamefiles.py); without them the page shows ids
 async function loadDb() {
   const get = async (f) => { try { const r = await fetch(`db_bb/${f}`); return r.ok ? await r.json() : undefined } catch { return undefined } }
-  db = { names: await get('names.json'), gemEffects: await get('gem_effects.json'), lanterns: await get('lanterns.json') }
+  db = { names: await get('names.json'), gemEffects: await get('gem_effects.json'), lamps: await get('lamps.json') }
   $('dbnote').textContent = db.names ? '' : 'Item names are not installed here (db_bb/names.json), so items show as ids.'
 }
 
