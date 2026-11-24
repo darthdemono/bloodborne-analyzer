@@ -6,6 +6,7 @@ Reads a decrypted Bloodborne character file and writes the character's level, st
 python3 bb_to_md.py                               # the live bbport save
 python3 bb_to_md.py userdata0000 -o save.md       # or .json
 python3 bb_to_md.py /path/to/bb-snapshots -o history.md
+python3 bb_to_md.py --validate /path/to/saves     # does each save add up; exit 1 on a finding
 python3 -m unittest discover -s tests
 ```
 
@@ -13,7 +14,7 @@ Python 3.10 or newer, standard library only.
 
 ## What it reads today
 
-Name, level, the six stats, health, stamina, Blood Echoes and insight. A history across snapshots folds byte-identical copies together and reports any stat that drops. That is a small part of the file: 185 of 1,310,720 bytes. What is known and what is not is in `notes/format.md`.
+Name, level, the six stats, health, stamina, Blood Echoes and insight. A history across snapshots folds byte-identical copies together and reports any stat that drops. `--validate` checks that the level matches the stats and the stats are in range. That is a small part of the file: 185 of 1,310,720 bytes. What is known and what is not is in `notes/format.md`, and what is left against sl2-analyzer is in `notes/roadmap.md`.
 
 ## Saves
 
