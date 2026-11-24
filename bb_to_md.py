@@ -13,6 +13,7 @@ from pathlib import Path
 from bloodborne import BloodborneError, summarize
 from bloodborne.combine import collect, history, render_history
 from bloodborne.render import render
+from bloodborne.validate import validate
 
 LIVE = Path.home() / ".local/share/bbport/user/savedata/1/CUSA00900/SPRJ0005/userdata0000"
 
@@ -22,9 +23,22 @@ def main() -> int:
     ap.add_argument("paths", nargs="*")
     ap.add_argument("-o", "--out")
     ap.add_argument("--combined", action="store_true")
+    ap.add_argument("--validate", action="store_true", help="check that each save adds up; exit 1 on any finding")
     a = ap.parse_args()
     paths = a.paths or [str(LIVE)]
     files = collect(paths)
+    if a.validate:
+        bad = 0
+        for f in files:
+            try:
+                found = validate(summarize(f))
+            except BloodborneError as e:
+                found = [str(e)]
+            for line in found:
+                print(f"{f}: {line}")
+            bad += bool(found)
+        print(f"{len(files)} files checked, {bad} with findings")
+        return 1 if bad else 0
     as_json = bool(a.out) and a.out.endswith(".json")
     if len(files) > 1 or a.combined or any(Path(p).is_dir() for p in paths):
         h = history(paths)
