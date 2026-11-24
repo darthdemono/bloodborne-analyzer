@@ -45,9 +45,17 @@ Between file offset 84 and the username: first **40-byte records for every gem a
 
 **Worn items** are eight first-part handles at username + 389, 393, 397, 401 (four weapon slots, stored order) and + 421, 425, 429, 433 (head, chest, arms, legs). Matched to the inventory by first part; checked on the live save (Hunter Pistol, Hunter Axe +1, two fists; Yharnam Hunter Cap, Garb, Gloves, Trousers). Which weapon slot is which hand is not known, so the report says "stored order".
 
-## Lanterns
+## The event flag store, and lanterns
 
-Not decodable from the game data alone: `ReturnPointParam` (87 rows, 32 bytes each, 24-byte entries from 0x40 of the PARAM) lists respawn points by map, not the save bit of each lantern. The flag area changes by 1 to 92 bytes between snapshots, most of it a cluster at `aob + 7143..7246` and another at `aob + 10145..10208` that fill as areas are explored and clear again on a restore. So lanterns are calibrated from play: `BB-Save`, light one lantern, `BB-Save`, then `python3 tools/flagdiff.py older newer --add "Name"` records the one new bit in `db_bb/lanterns.json`. `bloodborne/lanterns.py` reads that table; a lantern not in it is never reported as unlit.
+Every story event is a numbered flag, and the save holds the whole store: **a pool of 1,200 blocks of 125 bytes (150,000 bytes) starting 377 bytes after the aob marker**. A flag id is decimal `TAABZnnn` (T type digit, AA area, B map block, Z zone, nnn the bit). Block key: global ids (0 to 9999, and `T0000Znnn` for T in 1, 5, 6, 7) `index(T in 0,1,5,6,7) + Z * 5`; map ids (T in 1, 5, 6, 7, 9) `Z * 115 + 50 + 23 * index(T in 1,5,6,7,9) + index of (area, block) in the 17-map table`. The bit is `data[key * 125 + (nnn >> 3)] & (0x80 >> (nnn & 7))`, so the first flag of a byte is its top bit. `bloodborne/flags.py` implements it and `app/flags.js` ports it.
+
+**Verified on this machine's saves, not just read:** the formula puts Cleric Beast (flag 12411700) at `aob + 21714` mask `0x08`, Father Gascoigne (12411800) at `aob + 21727` mask `0x80` and Vicar Amelia (12401800) at `aob + 21602` mask `0x80`, exactly where `bosses.py` found them independently; global flag 2400 lands on `aob + 1677` mask `0x80`, where a real snapshot diff showed it turning on. The pool offset 377 is solved from those, not assumed.
+
+**Lamps:** a lamp is lit when flag `7AAB02nn` is set (area AA, block B, lamp n of that map). The lamp names are in the game's own text: `イベントテキスト` in `menu.msgbnd`, id `7000AABn` (70002413 is "Tomb of Oedon", so its flag is 72410203). `tools/gamefiles.py names` writes `db_bb/lamps.json` (53 lamps: flag and name). On this machine's saves Central Yharnam is lit from the first snapshot and Tomb of Oedon lights in the snapshot taken after the Gascoigne kill; the changed byte in the diff, `aob + 15902` bit `0x10`, is exactly where flag 72410203 lives. Hunter's Dream is not a lamp flag and is left out. Calibration from play, which an earlier version of this file proposed, was unnecessary: the flag ids were published, and I had not searched for them.
+
+`tools/flagdiff.py older newer` maps every changed bit back to its flag id (and lamp name) through the same layout.
+
+**Sources:** hazeyxd23/bloodborne_pc_windows_port `docs/party/event_flags.md` and `gpu/shim/party/party_flags.inc` (a reverse-engineering of the 1.09 engine: the store layout, the id scheme, and per-category lists of flags: 83 boss-defeated, 110 lamp, 144 shortcut/door, 115 NPC quest, 1,287 item pickup, 22 cutscene), read as documentation only. Souls Modding Wiki's Bloodborne section lists the param tables and has an empty event flag page.
 
 ## Names
 
@@ -59,4 +67,4 @@ The anchor chain and distances were read from two public projects, as documentat
 
 ## Not read yet
 
-Appearance (the 235 bytes after `FACE`), map position, most event flags (lanterns until calibrated, NPC states, Hunter's Dream), the origin name, the gem name table (keyed by an id the save does not carry), consumable quick slots. `integrity.decodedBytes` in the summary says honestly how much is read.
+Appearance (the 235 bytes after `FACE`), map position, the named meaning of most event flags (the engine table classifies shortcuts, NPC steps and item pickups by id only), Hunter's Dream, the origin name, the gem name table (keyed by an id the save does not carry), consumable quick slots. `integrity.decodedBytes` in the summary says honestly how much is read.

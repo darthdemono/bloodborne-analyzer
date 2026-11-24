@@ -15,8 +15,8 @@ Each feature of `~/Code/sl2-analyzer`, and where Bloodborne stands. "Blocked" me
 | Gems and runes, gem slots | done | shape, effects named from the game, which weapon or armor each is fitted to |
 | Equipped gear | done | worn weapons (stored order) and armor |
 | Bosses defeated | done | 22 flags read; Father Gascoigne confirmed by a real kill, the other 21 not yet seen |
-| Lanterns lit | calibration workflow | `tools/flagdiff.py --add` records a lantern from two snapshots; none calibrated yet |
-| Areas, NPC states | blocked | flags not located |
+| Lanterns (lamps) lit | done | 53 lamps from the game's text, read through the event flag store (`bloodborne/flags.py`), checked against boss offsets |
+| Shortcuts opened, NPC quest steps, item pickups, cutscenes | ids known, names not | the engine table lists them by flag id (144, 115, 1,287, 22); naming needs EMEVD event names and ItemLotParam rows |
 | Play time, deaths, NG cycle | done | play time also exposes restored saves in the history |
 | Map position | blocked | the editor reads coordinates by a pattern; not located here |
 | Item names from the game's own files (`tools/gamefiles.py`) | done | goods, weapons, armor; origin names and gem effects still to do |

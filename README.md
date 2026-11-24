@@ -18,11 +18,11 @@ Python 3.10 or newer, standard library only.
 
 ## What it reads today
 
-Name, level, the six stats, health, stamina, Blood Echoes, insight, play time, deaths, New Game cycle, the full inventory, storage and key-item lists with the game's own item names, worn weapons and armor, every blood gem and rune with its effects and what it is fitted to, the gem slots of each weapon and armor piece, and 22 boss flags. Lanterns are read from a table you calibrate from your own play (`tools/flagdiff.py --add`). A history across snapshots folds byte-identical copies together, shows play time and deaths, lists the gear and items that appeared between snapshots, and reports a stat that drops or play time that goes back (an older save was restored). `--validate` checks that the level matches the stats and the values are in range.
+Name, level, the six stats, health, stamina, Blood Echoes, insight, play time, deaths, New Game cycle, the full inventory, storage and key-item lists with the game's own item names, worn weapons and armor, every blood gem and rune with its effects and what it is fitted to, the gem slots of each weapon and armor piece, and 22 boss flags. Lamps (lanterns) lit are read from the game's event flag store, with their names from the game's text. A history across snapshots folds byte-identical copies together, shows play time and deaths, lists the gear and items that appeared between snapshots, and reports a stat that drops or play time that goes back (an older save was restored). `--validate` checks that the level matches the stats and the values are in range.
 
 Names are read from the game: `python3 tools/gamefiles.py names <game>/dvdroot_ps4/msg/engus db_bb` writes `db_bb/names.json` from your own install. Without it the report shows ids.
 
-Not read yet: map position, appearance, lanterns until calibrated and most event flags. What is known and what is not is in `notes/format.md`, and what is left against sl2-analyzer is in `notes/roadmap.md`.
+Not read yet: map position, appearance, shortcuts, NPC steps and item pickups (the flag ids are known, their names are not). What is known and what is not is in `notes/format.md`, and what is left against sl2-analyzer is in `notes/roadmap.md`.
 
 ## Saves
 
